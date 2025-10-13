@@ -1,5 +1,3 @@
-// src/hooks/useValidation.ts
-
 import { useState, useEffect } from "react";
 import {
   validateAccessCode,
@@ -33,7 +31,7 @@ export const useValidation = (): ValidationHook => {
     setErrorMessage(null);
   };
 
-  // ✅ Manual validation
+  // --- Manual validation ---
   const validate = async (code: string) => {
     reset();
     setState("loading");
@@ -42,13 +40,14 @@ export const useValidation = (): ValidationHook => {
       const response = await validateAccessCode(code);
 
       if (response.success) {
-        setResult(response.data);
+        const data = response.data;
+        setResult(data);
 
-if (response.data.isValid) {
+        if (data.result === "granted") {
           setState("success");
         } else {
           setState("denied");
-          setErrorMessage(response.data.message || "Access denied");
+          setErrorMessage(data.reason || "Access denied");
         }
       } else {
         setState("error");
@@ -62,7 +61,7 @@ if (response.data.isValid) {
     }
   };
 
-  // ✅ QR code validation
+  // --- QR validation ---
   const validateQR = async (qrData: string) => {
     reset();
     setState("loading");
@@ -71,13 +70,14 @@ if (response.data.isValid) {
       const response = await validateQRAccessCode(qrData);
 
       if (response.success) {
-        setResult(response.data);
+        const data = response.data;
+        setResult(data);
 
-if (response.data.isValid) {
+        if (data.result === "granted") {
           setState("success");
         } else {
           setState("denied");
-          setErrorMessage(response.data.message || "Access denied");
+          setErrorMessage(data.reason || "Access denied");
         }
       } else {
         setState("error");
@@ -90,23 +90,42 @@ if (response.data.isValid) {
       fetchHistory();
     }
   };
+// --- Fetch history ---
+const fetchHistory = async () => {
+  const response = await getRecentValidations();
 
-  // ✅ Fetch validation history
-  const fetchHistory = async () => {
-    if (state === "idle") setState("loading");
+  if (response.success) {
+    // ✅ Extract the actual list of validations
+const validations = response.data?.validations || [];
 
-    const response = await getRecentValidations();
+    // ✅ Transform backend field names to match your frontend RecentValidation type
+    const formatted = validations.map((v: any) => ({
+      id: v.id,
+      code: v.code,
+      status: v.result === "granted" ? "GRANTED" : "DENIED",
+      timestamp: v.validated_at,
+      officerId: "", // backend doesn’t return this yet
+      visitorName: v.visitor_name,
+      residentName: v.resident_name,
+    }));
 
-    if (response.success) {
-      setHistory(response.data);
-    } else {
-      console.error("Failed to fetch recent validations:", response.error.message);
-    }
+    setHistory(
+  data.validations.map((item) => ({
+    id: item.id,
+    code: item.code,
+    result: item.result as "granted" | "denied", // ✅ correct typing
+    validated_at: item.validated_at,
+    visitor_name: item.visitor_name,
+    resident_name: item.resident_name,
+    home: item.home,
+  }))
+);
 
-    if (state === "loading") setState("idle");
-  };
+  } else {
+    console.error("Failed to fetch recent validations:", response.error?.message);
+  }
+};
 
-  // ✅ Fetch history on component mount
   useEffect(() => {
     fetchHistory();
   }, []);

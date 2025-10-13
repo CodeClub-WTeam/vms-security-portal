@@ -1,17 +1,23 @@
 // src/features/validation/validationTypes.ts
 
-import type { ApiErrorResponse, ApiResponse } from "@/types/api"; // <--- FIX 2
+import type { ApiErrorResponse, ApiResponse } from "@/types/api";
 
 /** Structure of the data returned on a successful code validation. */
 export interface ValidationResult {
-  isValid: boolean;
-  message: string;
-  visitorName: string;
-  residentName: string;
-  homeDetails: {
-    plotNumber: string;
-    street: string;
-    // Add other relevant home fields
+  result: "granted" | "denied";
+  reason: string;
+  reason_code?: string;
+  code: string;
+  accessCodeId: string;
+  residentId: string;
+  validated_at: string;
+
+  // Optional UI-related display data (if frontend uses them)
+  visitorName?: string;
+  residentName?: string;
+  homeDetails?: {
+    plotNumber?: string;
+    street?: string;
   };
 }
 
@@ -19,12 +25,12 @@ export interface ValidationResult {
 export interface RecentValidation {
   id: string;
   code: string;
-  status: 'GRANTED' | 'DENIED';
-  timestamp: string;
-  officerId: string;
-  visitorName: string;
-  residentName: string; // 
-
+  result: "granted" | "denied";
+  visitor_name: string;
+  resident_name: string;
+  home: string;
+  validated_at: string;
 }
 
+/** Unified type for validation API responses */
 export type ValidationResponse = ApiResponse<ValidationResult> | ApiErrorResponse;

@@ -51,14 +51,16 @@ const Button: React.FC<ButtonProps> = ({
   ...rest 
 }) => {
   const isDisabled = disabled || isLoading;
-  const style = getStyles(variant, isDisabled);
+ const baseStyle = getStyles(variant, isDisabled);
+const mergedStyle = { ...baseStyle, ...(rest.style || {}) };
 
-  return (
-    <button
-      {...rest}
-      disabled={isDisabled}
-      style={style}
-    >
+return (
+  <button
+    {...rest}
+    disabled={isDisabled}
+    style={mergedStyle}
+  >
+
       {isLoading ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <LoadingSpinner message="" />

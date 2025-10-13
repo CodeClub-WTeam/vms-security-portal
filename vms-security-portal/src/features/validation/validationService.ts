@@ -7,7 +7,7 @@ import type { ValidationResult, ValidationResponse, RecentValidation } from "./v
 const SECURITY_URL = "/security";
 
 /**
- * ✅ Validate a manually entered 5-character access code.
+ * Validate a manually entered 5-character access code.
  * POST /security/validate
  */
 export async function validateAccessCode(code: string): Promise<ValidationResponse> {
@@ -23,7 +23,7 @@ export async function validateAccessCode(code: string): Promise<ValidationRespon
 }
 
 /**
- * ✅ Validate a QR code scanned by the security officer.
+ * Validate a QR code scanned by the security officer.
  * POST /security/validate-qr
  */
 export async function validateQRAccessCode(qrData: string): Promise<ValidationResponse> {
@@ -40,13 +40,13 @@ export async function validateQRAccessCode(qrData: string): Promise<ValidationRe
 }
 
 /**
- * ✅ Fetch recent validation logs by this security officer.
+ * Fetch recent validation logs by this security officer.
  * GET /security/recent-validations
  */
 export async function getRecentValidations():
-  Promise<ApiResponse<RecentValidation[]> | ApiErrorResponse> {
+  Promise<ApiResponse<{ validations: RecentValidation[] }> | ApiErrorResponse> {
   try {
-    const response = await apiClient.get<ApiResponse<RecentValidation[]>>(
+    const response = await apiClient.get<ApiResponse<{ validations: RecentValidation[] }>>(
       `${SECURITY_URL}/recent-validations`
     );
     return response.data;
@@ -54,3 +54,4 @@ export async function getRecentValidations():
     return handleApiError(error);
   }
 }
+  
