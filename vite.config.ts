@@ -5,6 +5,7 @@ import * as path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+   base: '/vms-security-portal/',
   resolve: {
     alias: {
       // Maps '@/' to the 'src' directory
